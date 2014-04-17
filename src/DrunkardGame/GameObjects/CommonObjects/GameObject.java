@@ -24,6 +24,7 @@ public class GameObject implements IGameVisitable, IGamePrintable {
 
     @Override
     public void accept(IGameVisitor visitor, Field field) {
+        visitor.visit(this, field);
     }
 
     @Override

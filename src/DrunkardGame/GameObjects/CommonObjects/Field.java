@@ -1,6 +1,6 @@
 package DrunkardGame.GameObjects.CommonObjects;
 
-import DrunkardGame.GameObjects.StaticObjects.Border;
+import DrunkardGame.GameObjects.StaticObjects.*;
 
 /**
  * Created by novokrest on 3/3/14.
@@ -10,25 +10,57 @@ public class Field {
     int columnCount;
     GameObject[][] tableObjects;
 
+    Column column;
+    Lamppost lamppost;
+    Pub pub;
+    PoliceStation policeStation;
+    GlassPoint glassPoint;
+
     public Field(int rowCount, int columnCount) {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
-        tableObjects = new GameObject[this.rowCount][this.columnCount];
+        initialize();
+        registerStaticObjects();
 
+    }
+
+    private void initialize() {
+        tableObjects = new GameObject[this.rowCount][this.columnCount];
         for (int i = 0; i < this.rowCount; i++) {
             for (int j = 0; j < this.columnCount; j++) {
                 if ((i == 0) || (i == this.rowCount - 1) || (j == 0) || (j == this.columnCount - 1)) {
                     tableObjects[i][j] = new Border(i, j);
-                }
-                else {
+                } else {
                     tableObjects[i][j] = new GameObject(i, j);
                 }
             }
         }
     }
 
-    public int getRowCount() { return rowCount; }
-    public int getColumnCount() { return columnCount; }
+    private void registerStaticObjects() {
+        pub = new Pub(10, 0);
+        policeStation = new PoliceStation(16, 4);
+        glassPoint = new GlassPoint(0, 5);
+        column = new Column(8, 8);
+        lamppost = new Lamppost(11, 4);
+        register(pub);
+        register(policeStation);
+        register(glassPoint);
+        register(column);
+        register(lamppost);
+    }
+
+    public int getRowCount() {
+        return rowCount;
+    }
+
+    public int getColumnCount() {
+        return columnCount;
+    }
+
+    public Lamppost getLamppost() {
+        return lamppost;
+    }
 
     public GameObject getObject(int coordinateX, int coordinateY) {
         return tableObjects[coordinateX][coordinateY];

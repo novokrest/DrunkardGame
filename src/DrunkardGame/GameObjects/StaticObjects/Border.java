@@ -19,5 +19,7 @@ public class Border extends GameObject implements IGameVisitable {
     }
 
     @Override
-    public void print() {}
+    public void print() {
+        System.out.print(' ');
+    }
 }

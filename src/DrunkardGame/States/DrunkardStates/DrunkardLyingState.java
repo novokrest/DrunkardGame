@@ -1,18 +1,18 @@
-package DrunkardGame.GameObjects.DrunkardStates;
+package DrunkardGame.States.DrunkardStates;
 
-import DrunkardGame.GameInterfaces.IDrunkardState;
+import DrunkardGame.GameInterfaces.IGameState;
 import DrunkardGame.GameInterfaces.IGameVisitor;
 import DrunkardGame.GameObjects.CommonObjects.Coordinates;
 import DrunkardGame.GameObjects.CommonObjects.Field;
+import DrunkardGame.GameObjects.MovableObjects.Drunkard;
 
 /**
  * Created by novokrest on 3/3/14.
  */
-public class DrunkardSleepingState implements IDrunkardState {
+public class DrunkardLyingState extends DrunkardState {
 
-    @Override
-    public Coordinates makeStepHandle(Coordinates drunkardCoordinates) {
-        return drunkardCoordinates;
+    public DrunkardLyingState(Drunkard drunkard) {
+        super(drunkard);
     }
 
     @Override
@@ -22,7 +22,6 @@ public class DrunkardSleepingState implements IDrunkardState {
 
     @Override
     public void print() {
-        System.out.print('Z');
+        System.out.print('&');
     }
-
 }

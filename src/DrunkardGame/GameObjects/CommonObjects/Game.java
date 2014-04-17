@@ -1,8 +1,10 @@
 package DrunkardGame.GameObjects.CommonObjects;
 
-import DrunkardGame.GameInterfaces.IGameMoving;
+import DrunkardGame.Factories.BeggarFactory;
+import DrunkardGame.Factories.DrunkardFactory;
+import DrunkardGame.Factories.PolicemanFactory;
+import DrunkardGame.GameInterfaces.IGameFactory;
 import DrunkardGame.GameInterfaces.IGameObservable;
-import DrunkardGame.GameObjects.StaticObjects.*;
 
 import java.util.ArrayList;
 
@@ -12,48 +14,57 @@ import java.util.ArrayList;
 public class Game implements IGameObservable {
     public int step = 0;
     Field field;
-    ArrayList<IGameMoving> movingObjects;
-    Pub pub;
-    PoliceStation policeStation;
-    GlassPoint glassPoint;
+    ArrayList<GameMovingObject> movingObjects;
+    IGameFactory drunkardFactory;
+    IGameFactory policemanFactory;
+    IGameFactory beggarFactory;
 
     public Game() {
         field = new Field(17, 17);
-        movingObjects = new ArrayList<IGameMoving>();
-        pub = new Pub(10, 0);
-        policeStation = new PoliceStation(16, 4);
-        glassPoint = new GlassPoint(0, 5);
-        field.register(pub);
-        field.register(policeStation);
-        field.register(glassPoint);
-        field.register(new Column(8, 8));
-        field.register(new Lamppost(11, 4));
+        movingObjects = new ArrayList<GameMovingObject>();
+        drunkardFactory = new DrunkardFactory(10, 1);
+        policemanFactory = new PolicemanFactory(15, 4);
+        beggarFactory = new BeggarFactory(1, 5);
+
+        GameMovingObject policeman = policemanFactory.getObject(field);
+        GameMovingObject beggar = beggarFactory.getObject(field);
+        registerGameObject(policeman);
+        registerGameObject(beggar);
+        //field.register(policeman);
+        field.register(beggar);
     }
 
     public void start() {
+        field.print();
         while (true) {
-            try { Thread.sleep(300); } catch (Exception e) {}
-            notifyAboutStep();
+            //try { Thread.sleep(300); } catch (Exception e) {}
+            nextStep();
             field.print();
             step++;
+            if (step == 500) {
+                break;
+            }
         }
     } 
     private void nextStep() {
-        if (step % 20 == 0) {
-
-        }
         notifyAboutStep();
-        step++;
+        if (step % 20 == 0) {
+            GameMovingObject newDrunkard = drunkardFactory.getObject(field);
+            if (newDrunkard != null) {
+                field.register(newDrunkard);
+                registerGameObject(newDrunkard);
+            }
+        }
     }
 
     @Override
-    public void registerGameObject(IGameMoving movingObject) {
+    public void registerGameObject(GameMovingObject movingObject) {
         movingObjects.add(movingObject);
     }
 
     public void notifyAboutStep() {
-        for (int i = 0; i < movingObjects.size(); i++) {
-            movingObjects.get(i).makeStep(field);
+        for (GameMovingObject movingObject : movingObjects) {
+            movingObject.makeStep(field);
         }
     }
 }

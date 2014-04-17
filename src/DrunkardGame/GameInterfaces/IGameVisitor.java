@@ -2,9 +2,9 @@ package DrunkardGame.GameInterfaces;
 
 import DrunkardGame.GameObjects.CommonObjects.Field;
 import DrunkardGame.GameObjects.CommonObjects.GameObject;
-import DrunkardGame.GameObjects.DrunkardStates.DrunkardLyingState;
-import DrunkardGame.GameObjects.DrunkardStates.DrunkardSleepingState;
-import DrunkardGame.GameObjects.DrunkardStates.DrunkardWalkingState;
+import DrunkardGame.States.DrunkardStates.DrunkardWalkingState;
+import DrunkardGame.States.DrunkardStates.DrunkardLyingState;
+import DrunkardGame.States.DrunkardStates.DrunkardSleepingState;
 import DrunkardGame.GameObjects.MovableObjects.Beggar;
 import DrunkardGame.GameObjects.MovableObjects.Drunkard;
 import DrunkardGame.GameObjects.MovableObjects.Policeman;
@@ -25,7 +25,7 @@ public interface IGameVisitor {
     public void visit(Pub pub, Field field);
 
     public void visit(Drunkard drunkard, Field field);
-    public void visit(IDrunkardState state, Field field);
+    public void visit(IGameState state, Field field);
     public void visit(DrunkardWalkingState state, Field field);
     public void visit(DrunkardLyingState state, Field field);
     public void visit(DrunkardSleepingState state, Field field);

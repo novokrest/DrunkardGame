@@ -1,14 +1,14 @@
 package DrunkardGame.Strategies;
 
-import DrunkardGame.GameInterfaces.IDrunkardState;
-import DrunkardGame.GameInterfaces.IFinderStrategy;
+import DrunkardGame.GameInterfaces.IGameState;
+import DrunkardGame.GameInterfaces.IGameStrategy;
 import DrunkardGame.GameInterfaces.IGameVisitor;
 import DrunkardGame.GameObjects.CommonObjects.Coordinates;
 import DrunkardGame.GameObjects.CommonObjects.Field;
 import DrunkardGame.GameObjects.CommonObjects.GameObject;
-import DrunkardGame.GameObjects.DrunkardStates.DrunkardLyingState;
-import DrunkardGame.GameObjects.DrunkardStates.DrunkardSleepingState;
-import DrunkardGame.GameObjects.DrunkardStates.DrunkardWalkingState;
+import DrunkardGame.States.DrunkardStates.DrunkardWalkingState;
+import DrunkardGame.States.DrunkardStates.DrunkardLyingState;
+import DrunkardGame.States.DrunkardStates.DrunkardSleepingState;
 import DrunkardGame.GameObjects.MovableObjects.Beggar;
 import DrunkardGame.GameObjects.MovableObjects.Drunkard;
 import DrunkardGame.GameObjects.MovableObjects.Policeman;
@@ -20,42 +20,65 @@ import java.util.Queue;
 /**
  * Created by Admin on 4/13/14.
  */
-public abstract class FinderStrategy implements IGameVisitor, IFinderStrategy {
+public abstract class FinderStrategy implements IGameVisitor, IGameStrategy {
     protected Coordinates targetObjectCoordinates;
     protected boolean[][] isVisit;
     protected GameObject[][] predecessors;
     protected Queue<GameObject> objectsForVisit;
 
     public FinderStrategy() {
-        //isVisit and predecessors must init
         targetObjectCoordinates = null;
         objectsForVisit = new LinkedList<GameObject>();
     }
 
-    public abstract Coordinates getOptimalStep(Coordinates startCoordinates, Field field);
-
-    protected Coordinates getOptimalStepToTarget() {
-        int currentX = targetObjectCoordinates.getX();
-        int currentY = targetObjectCoordinates.getY();
-        while (predecessors[currentX][currentY] != null) {
-            currentX = predecessors[currentX][currentY].getX();
-            currentY = predecessors[currentX][currentY].getY();
+    @Override
+    public Coordinates getOptimalStep (Coordinates startCoordinates,  Field field) {
+        initForCalculatePath(field);
+        traverseField(startCoordinates, field);
+        if (targetObjectCoordinates != null) {
+            Coordinates nextCoordinates = getOptimalStepToTarget();
+            return nextCoordinates;
         }
-        return new Coordinates(currentX, currentY);
+        return startCoordinates;
     }
 
-    protected void traverseField (Coordinates startCoordinates, Field field) {
+    private void initForCalculatePath(Field field) {
+        targetObjectCoordinates = null;
+        objectsForVisit.clear();
+        isVisit = new boolean[field.getRowCount()][field.getColumnCount()];
+        predecessors = new GameObject[field.getRowCount()][field.getColumnCount()];
+        for (int i = 0; i < field.getRowCount(); i++) {
+            for (int j = 0; j < field.getColumnCount(); j++) {
+                isVisit[i][j] = false;
+                predecessors[i][j] = null;
+            }
+        }
+    }
+
+    private Coordinates getOptimalStepToTarget() {
+        Coordinates currentObjectCoordinates = targetObjectCoordinates;
+        while (getPredecessor(getPredecessor(currentObjectCoordinates).getCoordinates()) != null) {
+            currentObjectCoordinates = getPredecessor(currentObjectCoordinates).getCoordinates();
+        }
+        return new Coordinates(currentObjectCoordinates.getX(), currentObjectCoordinates.getY());
+    }
+
+    private GameObject getPredecessor(Coordinates gameObjectCoordinates) {
+        return predecessors[gameObjectCoordinates.getX()][gameObjectCoordinates.getY()];
+    }
+
+    private void traverseField (Coordinates startCoordinates, Field field) {
         int startX = startCoordinates.getX();
         int startY = startCoordinates.getY();
-        predecessors[startX][startY] = null;
+        isVisit[startX][startY] = true;
         addNeighborsFromFieldForVisit(field.getObject(startX, startY), field);
-        while (!objectsForVisit.isEmpty() && (targetObjectCoordinates != null)) {
+        while (!objectsForVisit.isEmpty() && (targetObjectCoordinates == null)) {
             GameObject objectForVisit = objectsForVisit.poll();
             objectForVisit.accept(this, field);
         }
     }
 
-    protected void addNeighborsFromFieldForVisit (GameObject predecessor, Field field) {
+    private void addNeighborsFromFieldForVisit (GameObject predecessor, Field field) {
         int currentX = predecessor.getX();
         int currentY = predecessor.getY();
         addObjectFromFieldForVisit(currentX - 1, currentY, predecessor, field);
@@ -64,10 +87,12 @@ public abstract class FinderStrategy implements IGameVisitor, IFinderStrategy {
         addObjectFromFieldForVisit(currentX, currentY + 1, predecessor, field);
     }
 
-    protected void addObjectFromFieldForVisit (int coordinateX, int coordinateY, GameObject predecessor, Field field) {
-        objectsForVisit.add(field.getObject(coordinateX, coordinateY));
-        isVisit[coordinateX][coordinateY] = true;
-        predecessors[coordinateX][coordinateY] = predecessor;
+    private void addObjectFromFieldForVisit (int coordinateX, int coordinateY, GameObject predecessor, Field field) {
+        if (! isVisit[coordinateX][coordinateY]) {
+            objectsForVisit.add(field.getObject(coordinateX, coordinateY));
+            isVisit[coordinateX][coordinateY] = true;
+            predecessors[coordinateX][coordinateY] = predecessor;
+        }
     }
 
     @Override
@@ -115,7 +140,7 @@ public abstract class FinderStrategy implements IGameVisitor, IFinderStrategy {
     }
 
     @Override
-    public void visit(IDrunkardState state, Field field) {
+    public void visit(IGameState state, Field field) {
 
     }
 

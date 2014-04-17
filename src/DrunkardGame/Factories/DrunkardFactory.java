@@ -1,22 +1,18 @@
 package DrunkardGame.Factories;
 
-import DrunkardGame.GameInterfaces.IGameFactory;
+import DrunkardGame.GameObjects.CommonObjects.GameMovingObject;
 import DrunkardGame.GameObjects.MovableObjects.Drunkard;
 
 /**
  * Created by novokrest on 4/12/14.
  */
-public class DrunkardFactory implements IGameFactory{
-    int drunkardX;
-    int drunkardY;
-
-    public DrunkardFactory(int x, int y) {
-        drunkardX = x;
-        drunkardY = y;
+public class DrunkardFactory extends MovingObjectFactory{
+    public DrunkardFactory(int movingObjectX, int movingObjectY) {
+        super(movingObjectX, movingObjectY);
     }
 
     @Override
-    public Drunkard makeObject() {
-        return new Drunkard(drunkardX, drunkardY);
+    public GameMovingObject makeObject() {
+        return new Drunkard(movingObjectX, movingObjectY);
     }
 }
